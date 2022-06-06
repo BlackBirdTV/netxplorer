@@ -56,7 +56,12 @@ fn get(mut stream: TcpStream, request: Vec<&str>) {
          contents = read_to_string(&file_path).unwrap();
     }
     else if is_file {
-        contents = read_to_string(&file_path).unwrap_or(read_to_string("./src/403.html").unwrap_or("<!DOCTYPE html>
+        if !File::open(&file_path).unwrap().metadata().unwrap().permissions().readonly() {
+            contents = read_to_string(&file_path).unwrap();
+        }
+        else {
+            code = "403 Forbidden";
+            contents = read_to_string("./src/403.html").unwrap_or("<!DOCTYPE html>
         <html lang='en'>
         <head>
             <meta charset='UTF-8'>
@@ -199,7 +204,8 @@ fn get(mut stream: TcpStream, request: Vec<&str>) {
                 }})
             </script>
         </body>
-        </html>".to_owned()));
+        </html>".to_owned());
+        }
     }
     else if exists {
         let mut files = String::new();
