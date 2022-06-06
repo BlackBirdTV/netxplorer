@@ -42,6 +42,7 @@ fn handle_connection(mut stream: TcpStream) {
 
     println!("GET {}", &file_path[&file_path.rfind(&dir).unwrap()+&dir.len()..]);
 
+    let mut code = "200 OK";
     let exists = Path::new(&file_path).exists();
     let is_file = Path::new(&file_path).is_file();
     if exists && !is_file && Path::new(&format!("{}/index.html", &file_path)).exists() {
@@ -187,11 +188,13 @@ fn handle_connection(mut stream: TcpStream) {
         }, &dirs, &files).to_owned();
     }
     else {
+        code = "404 Not Found";
         contents = read_to_string(format!("{}/404.html", &dir)).unwrap();
     }
 
     let response = format!(
-        "HTTP/1.1 200 OK\r\nContent-Length: {}\r\n\r\n{}",
+        "HTTP/1.1 {}\r\nContent-Length: {}\r\n\r\n{}",
+        code,
         contents.len(),
         contents
     );
