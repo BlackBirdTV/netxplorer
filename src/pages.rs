@@ -21,6 +21,7 @@ pub static P403: &str = "<!DOCTYPE html>
     .content {
         display: grid;
         place-items: center;
+        height: calc(100% - 50px)
     }
 
     .content div {
@@ -47,6 +48,7 @@ pub static P403: &str = "<!DOCTYPE html>
         position: absolute;
         right: 5px;
         top: 5px;
+        cursor: pointer
     }
 
     .topBar {
@@ -57,7 +59,6 @@ pub static P403: &str = "<!DOCTYPE html>
         height: 40px;
         background-color: #2A2550;
         box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-        margin-bottom: 10px;
     }
 
     .back, .forward {
@@ -166,6 +167,7 @@ pub static P404: &str = "<!DOCTYPE html>
     .content {
         display: grid;
         place-items: center;
+        height: calc(100% - 50px)
     }
 
     .content div {
@@ -192,6 +194,7 @@ pub static P404: &str = "<!DOCTYPE html>
         position: absolute;
         right: 5px;
         top: 5px;
+        cursor: pointer
     }
 
     .topBar {
@@ -202,7 +205,6 @@ pub static P404: &str = "<!DOCTYPE html>
         height: 40px;
         background-color: #2A2550;
         box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-        margin-bottom: 10px;
     }
 
     .back, .forward {
@@ -298,7 +300,6 @@ pub static EXPLORER: &str = "<html>
             font-family: Ubuntu, sans-serif;
             margin: 0;
 			width: 100%;
-			height: 100%;
         }
 
         a {
@@ -357,6 +358,7 @@ pub static EXPLORER: &str = "<html>
             position: absolute;
             right: 5px;
             top: 5px;
+            cursor: pointer;
         }
 
         .topBar {

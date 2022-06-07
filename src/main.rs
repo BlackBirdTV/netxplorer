@@ -84,25 +84,25 @@ fn get(mut stream: TcpStream, request: Vec<&str>) {
 
             let path = file.unwrap().path().display().to_string().replace("\\", "/");
             if !Path::new(&path).is_file(){
-                dirs = format!("{}{}", &dirs, read_to_string("./src/dir.html").unwrap_or("<div onclick=\"window.location.href='{url}';\" class='dirEntry'>
+                dirs = format!("{}{}", &dirs, read_to_string("./src/dir.html").unwrap_or("<a href=\"{url}\"><div class='dirEntry'>
               <svg version='1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' enable-background='new 0 0 48 48'>
                   <path fill='#E1F5FE' d='M40,12H22l-4-4H8c-2.2,0-4,1.8-4,4v8h40v-4C44,13.8,42.2,12,40,12z'/>
                   <path fill='#90CAF9' d='M40,12H8c-2.2,0-4,1.8-4,4v20c0,2.2,1.8,4,4,4h32c2.2,0,4-1.8,4-4V16C44,13.8,42.2,12,40,12z'/>
               </svg>
               <span>{name}</span>
-              </div>".to_owned()))
-              .replace("{url}", &path[..][path.rfind(dir).unwrap()+dir.len()..])
+              </div></a>".to_owned()))
+              .replace("{url}", &encode_path(&path[..][path.rfind(dir).unwrap()+dir.len()..]).to_string())
               .replace("{name}", &path[..][path.rfind('/').unwrap()+1..]);
             }
             else {
-                files = format!("{}{}",  &files, read_to_string("./src/file.html").unwrap_or("<div onclick=\"window.location.href='{url}';\" class='dirEntry'>
+                files = format!("{}{}",  &files, read_to_string("./src/file.html").unwrap_or("<a href=\"{url}\"><div class='dirEntry'>
                 <svg xmlns='http://www.w3.org/2000/svg'  viewBox='0 0 48 48'>
                     <path fill='#90CAF9' d='M40 45L8 45 8 3 30 3 40 13z'/>
                     <path fill='#E1F5FE' d='M38.5 14L29 14 29 4.5z'/>
                 </svg>
                 <span>{name}</span>
-                </div>".to_owned()))
-                .replace("{url}", &path[..][path.rfind(dir).unwrap()+dir.len()..])
+                </div></a>".to_owned()))
+                .replace("{url}", &encode_path(&path[..][path.rfind(dir).unwrap()+dir.len()..]).to_string())
                 .replace("{name}", &path[..][path.rfind('/').unwrap()+1..]);
             }
         }
