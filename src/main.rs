@@ -7,6 +7,7 @@ use std::path::*;
 use url_escape::*;
 
 mod pages;
+mod lib;
 
 fn main() {
     let port = 7878;
@@ -119,7 +120,7 @@ fn get(mut stream: TcpStream, request: Vec<&str>, is_admin: bool) {
             true => "true",
             _ => "false"
         })
-        .replace("{urls}", &format!("[\"{}\"]", urls.join("\",\"")));
+        .replace("{urls}", &format!("[{}]", lib::urls_to_js(urls)));
 
     }
     else {
@@ -204,7 +205,7 @@ fn head(mut stream: TcpStream, request: Vec<&str>) {
         })
         .replace("{content}", &format!("{}{{content}}", &dirs)[..])
         .replace("{content}", &files)
-        .replace("{urls}", &format!("[\"{}\"]", urls.join("\",\"")));
+        .replace("{urls}", &format!("[{}]", lib::urls_to_js(urls)));
     }
     else {
         code = "404 Not Found";

@@ -306,7 +306,8 @@ pub static EXPLORER: &str = "<html>
             outline: none;
         }
 
-        a {
+        a, button {
+            cursor: pointer;
             text-decoration: none;
         }
 
@@ -431,6 +432,31 @@ pub static EXPLORER: &str = "<html>
             transition: all 0.5s ease-in-out;
         }
 
+        .properties {
+            position: fixed;
+            width: 30%;
+            left: 35%;
+            height: 70%;
+            bottom: -100%;
+            background-color: rgb(58, 56, 69);
+            text-align: center;
+            color: white;
+            border-radius: 50px;
+            transition: all 0.5s ease-in-out;
+        }
+
+        .properties div {
+            width: calc(100% - 20px);
+            height: 20px;
+            margin: 10px;
+        }
+
+        .properties button.blue {
+            position: absolute;
+            bottom: 20px;
+            left: calc(50% - 50px);
+        }
+
         .pageInfo a {
             text-decoration: underline;
             color: white;
@@ -443,11 +469,12 @@ pub static EXPLORER: &str = "<html>
             cursor: pointer;
         }
 
-        #newDoc {
+        button.blue {
             background: #2196f3;
             border-radius: 100vw;
             border: none;
             height: 30px;
+            min-width: 100px;
             color: white;
         }
 
@@ -469,6 +496,8 @@ pub static EXPLORER: &str = "<html>
             overflow: hidden;
             opacity: 0;
             pointer-events: none;
+            min-height: 5px;
+            transition: opacity 0.3s ease;
         }
 
         .dropdown div {
@@ -482,6 +511,16 @@ pub static EXPLORER: &str = "<html>
 
         .dropdown div:hover {
             background-color: rgba(255, 255, 255, 0.1)
+        }
+
+        .left {
+            text-align: left;
+            float: left;
+        }
+
+        .right {
+            text-align: right;
+            float: right;
         }
     </style>
 </head>
@@ -517,28 +556,41 @@ pub static EXPLORER: &str = "<html>
         <h2>Add Document</h2>
         <input placeholder='Path' id='fileName'>
         <textarea wrap='soft' id='fileContent' rows='12' cols='50'></textarea>
-        <button id='newDoc'>Create / Edit Document</button>
+        <button id='newDoc' class='blue'>Create / Edit Document</button>
     </div>
+    </div>
+    <div id='adminDropdown' class='dropdown'>
+    <div onclick='sendDeleteRequest(urls[current].url.slice(5))'>Delete</div>
+    <div onclick='showProperties()'>Properties</div>
     </div>
     <div id='dropdown' class='dropdown'>
-    <div onclick='sendDeleteRequest(urls[current].slice(5))'>Delete</div>
+    <div onclick='showProperties()'>Properties</div>
+    </div>
+    <div class='properties'>
+    <h2>Properties</h2>
+    <div><span class='left'>File Size</span><span class='right' id='fileSize'>@filesize</span></div>
+    <button class='blue' onclick='hideProperties()'>Ok</button>
     </div>
     <script>
         const pageInfo = document.querySelector('.pageInfo');
         const addDoc = document.querySelector('.addDoc');
+        const properties = document.querySelector('.properties');
         const info = document.querySelector('#info');
         const add = document.querySelector('#add');
         const newDoc = document.querySelector('#newDoc');
         const fileContent = document.querySelector('#fileContent');
         const fileName = document.querySelector('#fileName');
         const entries = document.getElementsByClassName('dirEntry');
-        const dropdown = document.querySelector('#dropdown');
+        let dropdown = document.querySelector('#dropdown');
         const isAdmin = {isAdmin};
 
 
         const urls = {urls}
         if (isAdmin) {
-            let mousePosition = [0, 0];
+            dropdown = document.querySelector('#adminDropdown');
+        }
+
+        let mousePosition = [0, 0];
 
             document.onclick = function() { setTimeout(() => hideDropdown(), 1); }
 
@@ -547,9 +599,6 @@ pub static EXPLORER: &str = "<html>
 
                 event = event || window.event; // IE-ism
 
-                // If pageX/Y aren't available and clientX/Y are,
-                // calculate pageX/Y - logic taken from jQuery.
-                // (This is to support old IE)
                 if (event.pageX == null && event.clientX != null) {
                     eventDoc = (event.target && event.target.ownerDocument) || document;
                     doc = eventDoc.documentElement;
@@ -581,7 +630,6 @@ pub static EXPLORER: &str = "<html>
                 });
                 i++;
             })
-        }
         let infoShown = false;
 
         let docShown = false;
@@ -634,6 +682,15 @@ pub static EXPLORER: &str = "<html>
         function hideDropdown() {
             dropdown.style.opacity = 0;
             dropdown.style.pointerEvents = 'none';
+        }
+
+        function showProperties() {
+            properties.style.bottom = '15%';
+            document.querySelector('#fileSize').innerHTML = urls[current].size + ' Bytes'
+        }
+
+        function hideProperties() {
+            properties.style.bottom = '-100vh';
         }
     </script>
 </body>
