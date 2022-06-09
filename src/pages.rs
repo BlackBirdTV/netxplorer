@@ -302,6 +302,10 @@ pub static EXPLORER: &str = "<html>
 			width: 100%;
         }
 
+        *:focus {
+            outline: none;
+        }
+
         a {
             text-decoration: none;
         }
@@ -412,9 +416,72 @@ pub static EXPLORER: &str = "<html>
             transition: all 0.5s ease-in-out;
         }
 
+        .addDoc {
+            display: grid;
+            place-items: center;
+            position: fixed;
+            width: 30%;
+            left: 35%;
+            height: 70%;
+            bottom: -100%;
+            background-color: rgb(58, 56, 69);
+            text-align: center;
+            color: white;
+            border-radius: 50px;
+            transition: all 0.5s ease-in-out;
+        }
+
         .pageInfo a {
             text-decoration: underline;
             color: white;
+        }
+
+        .add {
+            position: fixed;
+            bottom: 5px;
+            right: 5px;
+            cursor: pointer;
+        }
+
+        #newDoc {
+            background: #2196f3;
+            border-radius: 100vw;
+            border: none;
+            height: 30px;
+            color: white;
+        }
+
+        textarea, input {
+            resize: none;
+            border: none;
+            border-radius: 10px;
+            margin: 5px;
+        }
+
+        .dropdown {
+            display: flex;
+            flex-direction: column;
+            width: 200px;
+            background-color: rgb(41, 41, 41);
+            position: absolute;
+            color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .dropdown div {
+            width: calc(100% - 10px);
+            height: 20px;
+            padding: 5px;
+            transition: background-color 0.2s ease-in;
+            color: white;
+            cursor: pointer;
+        }
+
+        .dropdown div:hover {
+            background-color: rgba(255, 255, 255, 0.1)
         }
     </style>
 </head>
@@ -435,25 +502,139 @@ pub static EXPLORER: &str = "<html>
     </div>
     <div class='entries'>
     {content}
-    </div>
+    </div><svg class='add' id='add' width='40px' height='40px' viewBox='0 0 48 48' fill='none' xmlns='http://www.w3.org/2000/svg'>
+    <path d='M44 24C44 35.045 35.045 44 24 44C12.955 44 4 35.045 4 24C4 12.955 12.955 4 24 4C35.045 4 44 12.955 44 24Z' fill='#2196F3'/>
+    <path d='M22.303 34V14H25.697V34H22.303ZM14 25.697V22.303H34V25.697H14Z' fill='white'/>
+    </svg>
     <div class='pageInfo'>
         <h2>Info</h2>
         Website powered by the <a href='https://github.com/BlackBirdTV/netxplorer'>NetXplorer</a><br>
         Icons by <a href='https://icons8.com'>Icons8</a><br>
         Ubuntu font used under <a href='https://ubuntu.com/legal/font-licence'>this License</a>
     </div>
+    <div class='addDoc'>
+    <div>
+        <h2>Add Document</h2>
+        <input placeholder='Path' id='fileName'>
+        <textarea wrap='soft' id='fileContent' rows='12' cols='50'></textarea>
+        <button id='newDoc'>Create / Edit Document</button>
+    </div>
+    </div>
+    <div id='dropdown' class='dropdown'>
+    <div onclick='sendDeleteRequest(urls[current].slice(5))'>Delete</div>
+    </div>
     <script>
         const pageInfo = document.querySelector('.pageInfo');
+        const addDoc = document.querySelector('.addDoc');
         const info = document.querySelector('#info');
+        const add = document.querySelector('#add');
+        const newDoc = document.querySelector('#newDoc');
+        const fileContent = document.querySelector('#fileContent');
+        const fileName = document.querySelector('#fileName');
+        const entries = document.getElementsByClassName('dirEntry');
+        const dropdown = document.querySelector('#dropdown');
+        const isAdmin = {isAdmin};
 
+
+        const urls = {urls}
+        if (isAdmin) {
+            let mousePosition = [0, 0];
+
+            document.onclick = function() { setTimeout(() => hideDropdown(), 1); }
+
+            document.onmousemove = function(event) {
+                var eventDoc, doc, body;
+
+                event = event || window.event; // IE-ism
+
+                // If pageX/Y aren't available and clientX/Y are,
+                // calculate pageX/Y - logic taken from jQuery.
+                // (This is to support old IE)
+                if (event.pageX == null && event.clientX != null) {
+                    eventDoc = (event.target && event.target.ownerDocument) || document;
+                    doc = eventDoc.documentElement;
+                    body = eventDoc.body;
+
+                    event.pageX = event.clientX +
+                        (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
+                        (doc && doc.clientLeft || body && body.clientLeft || 0);
+                    event.pageY = event.clientY +
+                        (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
+                        (doc && doc.clientTop  || body && body.clientTop  || 0 );
+                }
+
+                mousePosition = [event.pageX, event.pageY];
+            }
+
+            let current = 0;
+            let i = 0;
+            Array.from(entries).forEach((entry) => {
+                console.log(entry);
+                const lcl_i = i;
+                entry.addEventListener('contextmenu', function(ev) {
+                    ev.preventDefault();
+                    current = lcl_i;
+                    console.log('Entry clicked: [' + lcl_i + '] ' + urls[lcl_i])
+                    dropdown.style.left = (window.innerWidth - mousePosition[0] > 200 ? mousePosition[0] : mousePosition[0] - 200);
+                    dropdown.style.top = (window.innerHeight - mousePosition[1] > 30 ? mousePosition[1] : mousePosition[1] - 30);
+                    showDropdown();
+                });
+                i++;
+            })
+        }
         let infoShown = false;
 
+        let docShown = false;
+
+        add.style.opacity = (isAdmin ? '1' : '0')
+        add.style.pointerEvents = (isAdmin ? 'all' : 'none')
+
         info.addEventListener('click', () => {{
+            docShown = false;
+            addDoc.style.bottom = '-100vw';
             infoShown = !infoShown;
             pageInfo.style.bottom = (infoShown ? '25%' : '-100%');
-            console.log((infoShown ? '25%' : '-100%'));
-            console.log(infoShown)
         }})
+
+        add.addEventListener('click', () => {{
+            infoShown = false;
+            pageInfo.style.bottom = '-100vw';
+            docShown = !docShown;
+            addDoc.style.bottom = (docShown ? '15%' : '-100%');
+        }})
+
+        newDoc.addEventListener('click', () => {
+            docShown = false;
+            addDoc.style.bottom = '-100vw';
+            let content = fileContent.value.replaceAll('\\n', '\\\\n');
+            sendPostRequest(content, fileName.value);
+        })
+
+        function sendDeleteRequest(path) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('DELETE', path, true);
+            xhr.send('');
+            window.location.reload();
+        }
+
+        function sendPostRequest(content, path) {
+            console.log(content)
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', path, true);
+            xhr.setRequestHeader('Content-Type', 'text/plain');
+            xhr.send(content);
+            window.location.reload();
+        }
+
+        function showDropdown() {
+            dropdown.style.opacity = 1;
+            dropdown.style.pointerEvents = 'all';
+        }
+
+        function hideDropdown() {
+            dropdown.style.opacity = 0;
+            dropdown.style.pointerEvents = 'none';
+        }
     </script>
 </body>
 </html>";

@@ -3,6 +3,8 @@ NetXplorer is a HTTP-Server written in Rust that allows you to easily browse you
 
 ## Usage
 First, download the latest release. After that, create a folder called `src` in your server executables directory. This is how NetXplorer treats requests: If a file gets requested, the server will return the file or 404 if it doesn't exist. If the request contains a directory, the server will look for an `index.html` file and return it. If no index.html is found, the server will return a html page containing the Explorer UI. If you don't want people accessing a directory, you can simply create a index.html file in it.
+In order to allow users to create and delete files on your server, create a file called `.admins` in the directory of your server executable and put the IP adresses of the administrated users into it, each IP taking up it's own line.
+If everything went right, a blue button with a plus should appear in the bottom right corner of the admin's explorer. Clicking it will pull up the file creation Menu. If you right click on a file while having administrator privileges, the admin context menu will appear, in which you can delete the file.
 
 ## Customisation
 NetXplorer allows you to easily customize every UI Element.<br>
